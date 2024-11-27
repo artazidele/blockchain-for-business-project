@@ -147,7 +147,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
 
     // Administrative functions
     function addCharity(address _charityAddress) external onlyRole(ADMIN_ROLE) {
-        grantRole(CHARITY_ROLE, _charityAddress);
+        _grantRole(CHARITY_ROLE, _charityAddress);
     }
 
     function removeCharity(address _charityAddress) external onlyRole(ADMIN_ROLE) {
@@ -171,6 +171,38 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
             project.raisedAmount,
             project.isActive,
             project.milestones.length
+        );
+    }
+
+    function getProjects() external view returns (
+        string[] memory name,
+        address[] memory charityAddress,
+        uint256[] memory goalAmount,
+        uint256[] memory raisedAmount,
+        bool[] memory isActive,
+        uint256[] memory milestoneCount
+    ) {
+        string[] memory allNames = new string[](projectCount);
+        address[] memory allCharityAddreses = new address[](projectCount);
+        uint256[] memory allGoalAmounts = new uint256[](projectCount);
+        uint256[] memory allRaisedAmounts = new uint256[](projectCount);
+        bool[] memory areActive = new bool[](projectCount);
+        uint256[] memory milestoneCounts = new uint256[](projectCount);
+        for (uint i = 0; i < projectCount; i++) {
+            allNames[i] = projects[i].name;
+            allCharityAddreses[i] = projects[i].charityAddress;
+            allGoalAmounts[i] = projects[i].goalAmount;
+            allRaisedAmounts[i] = projects[i].raisedAmount;
+            areActive[i] = projects[i].isActive;
+            milestoneCounts[i] = projects[i].milestones.length;
+        }
+        return (
+            allNames, 
+            allCharityAddreses, 
+            allGoalAmounts,
+            allRaisedAmounts,
+            areActive,
+            milestoneCounts
         );
     }
 
