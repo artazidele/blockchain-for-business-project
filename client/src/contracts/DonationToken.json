@@ -219,7 +219,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -253,7 +254,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -272,7 +274,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -296,7 +299,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -309,7 +313,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -328,7 +333,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -416,7 +422,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [],
@@ -429,7 +436,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -448,7 +456,8 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
+      "type": "function",
+      "constant": true
     },
     {
       "inputs": [
@@ -14886,9 +14895,23 @@
     "name": "solc",
     "version": "0.8.21+commit.d9974bed.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "5777": {
+      "events": {},
+      "links": {},
+      "address": "0xD4Ebd13a602D2B034cbaC292a5A3b4d2ABbF21e7",
+      "transactionHash": "0x6037f3943a319867ca2ab16ca78cef97cdbb38e006306adefe096de51b6895c6"
+    },
+    "1732809313516": {
+      "events": {},
+      "links": {},
+      "address": "0x3c1a504AC6296F0D0e3643e1D70d55A90e873c46",
+      "transactionHash": "0x45f56d96b51e0c564e8aae7b799efc09eb5998dbf963e58eee846cf1d103d282"
+    }
+  },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-11-27T11:21:40.366Z",
+  "updatedAt": "2024-11-28T16:55:47.602Z",
+  "networkType": "ethereum",
   "devdoc": {
     "errors": {
       "ERC721IncorrectOwner(address,uint256,address)": [
