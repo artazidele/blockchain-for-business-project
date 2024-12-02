@@ -1,41 +1,26 @@
-// import React from 'react';
-// import { ContractProvider } from './example/ContractContext';
-// import MyComponent from './example/MyComponent';
-
-// function App() {
-//   return (
-//     <ContractProvider>
-//       <MyComponent />
-//     </ContractProvider>
-//   );
-// }
-
-// export default App;
-
-// // import './App.css';
-// // import { Donate } from './components/Donate';
-// // import { Test } from './components/Test';
-// // import { CallFunction } from './components/CallFunction';
-
 import React from 'react';
-import { CallFunction2 } from './example/CallFunction2';
+import { Footer } from './project/layout/Footer';
+import { Header } from './project/layout/Header';
+import { NewProject } from './project/components/NewProject';
+import { AllProjects } from './project/components/AllProjects';
+import { Project } from './project/components/Project';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 function App() {
   return (
-    <div>
-      <CallFunction2 />
+    <div className="justify-center p-0">
+      <Header />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/projects" element={<AllProjects />}/>
+          <Route path="/projects/:id" element={<Project />}/>
+          <Route path="/new" element={<NewProject />}/>
+          <Route path="*" element={<Navigate to="/"/>} />
+        </Routes>
+      </BrowserRouter>
+      <Footer />
     </div>
   );
 }
 
 export default App;
-
-// function App() {
-//   return (
-//     <ContractProvider>
-//       <MyComponent />
-//     </ContractProvider>
-//   );
-// }
-
-// export default App;

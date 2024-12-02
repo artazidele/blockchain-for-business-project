@@ -1,7 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 
-import * as flatted from 'flatted';
 
 import CharityPlatformContract from '../contracts/CharityPlatform.json';
 import DonationTokenContract from '../contracts/DonationToken.json';
