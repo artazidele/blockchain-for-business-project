@@ -14,6 +14,8 @@ export function Project() {
     const [project, setProject] = useState(null);
     const [milestones, setMilestones] = useState([]);
 
+    const [amountError, setAmountError] = useState(false);
+
     const id = window.location.href.split('/')[3];
 
     useEffect(() => {
@@ -74,12 +76,17 @@ export function Project() {
 
     async function donate(e) {
         e.preventDefault();
-        // input validation
-        const contractAddress = localStorage.getItem('contractAddress');
-        const signerAddress = localStorage.getItem('signerAddress');
-        const amountInt = parseInt(amount);
+        setAmountError(false);
+        if(isNaN(amount)) {
+            setAmountError(true);
+        } else {
+            //
+        }
+        // const contractAddress = localStorage.getItem('contractAddress');
+        // const signerAddress = localStorage.getItem('signerAddress');
+        // const amountInt = parseInt(amount);
 
-        console.log(charityAddress);
+        // console.log(charityAddress);
 
         // try {
         //     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -121,7 +128,8 @@ export function Project() {
                         <div className="mt-6 flex items-center justify-between gap-2">
                             <label className='font-semibold'>Amount (EUR): </label>
                             <input onChange={e => setAmount(e.target.value)} className="p-2 bg-transparent border-b-solid border-b-2 border-b-coffee_5 grow"/>                    
-                        </div>                    
+                        </div>  
+                        {amountError && <p className='w-full text-red-900 italic text-sm my-4'>Amount must be number.</p>}                  
                         <button onClick={donate} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">Donate</button>
                     </form>
                 </div>}
