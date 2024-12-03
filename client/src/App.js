@@ -3,22 +3,25 @@ import { Footer } from './project/layout/Footer';
 import { Header } from './project/layout/Header';
 import { NewProject } from './project/components/NewProject';
 import { AllProjects } from './project/components/AllProjects';
+import { MyDonations } from './project/components/MyDonations';
+import { About } from './project/components/About';
+import { MyCharity } from './project/components/MyCharity';
 import { Project } from './project/components/Project';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 function App() {
   return (
-    <div className="font-serif bg-coffee_1 mt-0">
+    <div className="relative min-h-screen font-serif bg-coffee_1 mt-0">
       <Header />
-      <div className='w-2/3 m-auto pt-48 pb-24'>
+      <div className='w-2/3 m-auto pt-48 pb-64'>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<AllProjects />}/>
             <Route path="/:id" element={<Project />}/>
             <Route path="/new" element={<NewProject />}/>
-            <Route path="/about" element={<NewProject />}/>
-            <Route path="/donations" element={<NewProject />}/>
-            <Route path="/charity" element={<NewProject />}/>
+            <Route path="/about" element={<About />}/>
+            <Route path="/donations" element={<MyDonations />}/>
+            <Route path="/charity" element={<MyCharity />}/>
             <Route path="*" element={<Navigate to="/"/>} />
           </Routes>
         </BrowserRouter>

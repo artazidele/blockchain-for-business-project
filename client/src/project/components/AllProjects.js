@@ -9,7 +9,6 @@ export function AllProjects() {
 
     const [projects, setProjects] = useState([]);
     const [projects1, setProjects1] = useState([]);
-    const [count, setCount] = useState([]);
 
     useEffect(() => {
         getProjects();
@@ -17,7 +16,7 @@ export function AllProjects() {
 
     useEffect(() => {
         getLastProject();
-    }, [count]);
+    }, [projects]);
 
     async function getLastProject() {
         const contractAddress = localStorage.getItem('contractAddress');
@@ -82,8 +81,6 @@ export function AllProjects() {
                 allProjectsArray.push(project);
             };
             setProjects(allProjectsArray);
-            setCount(names.length);
-
         } catch (error) {
             console.error("Error:", error);
         }
