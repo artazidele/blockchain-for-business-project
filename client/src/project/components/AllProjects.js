@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import CharityPlatformContract from '../../contracts/CharityPlatform.json';
+import ProjectsItem from './ProjectsItem';
 
 const { ethers } = require("ethers");
 
@@ -51,10 +52,13 @@ export function AllProjects() {
     }
 
     return (
-        <div className="bg-slate-100 text-center w-full m-0">
-            {projects && projects.map((project) => <div key={project.id}>
-                <p>{project.name}</p>
-            </div>)}
+        <div>
+            <h1 className='ml-6 my-8 text-4xl italic text-coffee_5 font-semibold'>All projects</h1>
+            <div className='grid grid-cols-3 gap-4 w-full'>
+                {projects && projects.map((project) => <div key={project.id}>
+                    <ProjectsItem project={ project }/>
+                </div>)}
+            </div>
         </div>
     );
 };

@@ -8,16 +8,21 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 function App() {
   return (
-    <div className="justify-center p-0">
+    <div className="font-serif bg-coffee_1 mt-0">
       <Header />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/projects" element={<AllProjects />}/>
-          <Route path="/projects/:id" element={<Project />}/>
-          <Route path="/new" element={<NewProject />}/>
-          <Route path="*" element={<Navigate to="/"/>} />
-        </Routes>
-      </BrowserRouter>
+      <div className='w-2/3 m-auto pt-48 pb-24'>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<AllProjects />}/>
+            <Route path="/:id" element={<Project />}/>
+            <Route path="/new" element={<NewProject />}/>
+            <Route path="/about" element={<NewProject />}/>
+            <Route path="/donations" element={<NewProject />}/>
+            <Route path="/charity" element={<NewProject />}/>
+            <Route path="*" element={<Navigate to="/"/>} />
+          </Routes>
+        </BrowserRouter>
+        </div>
       <Footer />
     </div>
   );
