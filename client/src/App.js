@@ -7,6 +7,7 @@ import { MyDonations } from './project/components/MyDonations';
 import { About } from './project/components/About';
 import { MyCharity } from './project/components/MyCharity';
 import { Project } from './project/components/Project';
+import { Example } from './project/components/Example';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
       <div className='w-2/3 m-auto pt-48 pb-64'>
         <BrowserRouter>
           <Routes>
+            {/* <Route path="/" element={<Example />}/> */}
             <Route path="/" element={<AllProjects />}/>
             <Route path="/:id" element={<Project />}/>
             <Route path="/new" element={<NewProject />}/>

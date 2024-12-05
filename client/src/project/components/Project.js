@@ -1,11 +1,14 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import CharityPlatformContract from '../../contracts/CharityPlatform.json';
+import Example from '../../contracts/Example.json';
 
 const { ethers } = require("ethers");
 
 export function Project() {
     const [account, setAccount] = useState('');
+
+    const [balance, setBalance] = useState('');
 
     const [amount, setAmount] = useState();
     const [charityAddress, setCharityAddress] = useState();
@@ -45,7 +48,7 @@ export function Project() {
             const projectWithId = await thisContract.getProject(id);
             setProject(projectWithId);
             setCharityAddress(projectWithId.charityAddress);
-            console.log(projectWithId.charityAddress);
+            console.log(projectWithId);
 
             const milestoneCount = projectWithId.milestoneCount.toString();
             const milestoneArray = [];
@@ -62,6 +65,7 @@ export function Project() {
     async function deactivateProject() {
         const contractAddress = localStorage.getItem('contractAddress');
         const signerAddress = localStorage.getItem('signerAddress');
+        // console.log(signerAddress);
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner(signerAddress);
@@ -69,6 +73,71 @@ export function Project() {
             const project = await thisContract.deactivateProject(id);
             await project.wait();
             getProject();
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    useEffect(() => {
+        requestBalance();
+    }, [account]);
+
+    async function requestBalance() {
+        if (account) {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const newBalance = await provider.getBalance(account.toString());
+            setBalance(ethers.utils.formatEther(newBalance));
+        }
+    }
+    // 73.336576129406074468
+    // 73.335874169406074468
+    // 73.335172209406074468
+
+    async function example() {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = await provider.getSigner();
+
+        const signerAddress = await signer.getAddress();
+        localStorage.setItem('signer', signerAddress);
+        console.log(signerAddress);
+
+        const abi = Example.abi;
+        const bytecode = Example.bytecode;
+
+        const factory = new ethers.ContractFactory(abi, bytecode, signer);
+        const contract = await factory.deploy(1000);
+
+        console.log(contract.address);
+        localStorage.setItem('contract', contract.address);
+    }
+
+    async function transferTokens() {
+        const contractAddress = localStorage.getItem('contract');
+        console.log(contractAddress);
+        const signerAddress = localStorage.getItem('signer');
+        console.log(signerAddress);
+          
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = await provider.getSigner(signerAddress);
+            const contract = new ethers.Contract(contractAddress, Example.abi, signer);
+            const toA = "0x9BD215d2d68Ce261E35B5A2596640aCf2f61B6D5";
+            const project = await contract.transferTokens(toA, 100);
+            const result = await project.wait();
+            contract.on('Transfer', () => {
+                console.log("Transaction complete");
+            });
+
+            const tx = await signer.sendTransaction({
+                to: toA,
+                value: ethers.utils.parseUnits("2", "ether")
+            });
+        
+            console.log("Transaction hash:", tx.hash);
+            await tx.wait();
+            alert("Transaction successful!");
+
+            requestBalance();
         } catch (error) {
             console.error("Error:", error);
         }
@@ -134,6 +203,9 @@ export function Project() {
                     </form>
                 </div>}
             </div>}
+            {balance && <p>{balance}</p>}
+            <button onClick={example} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">Example</button>
+            <button onClick={transferTokens} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">Example</button>
             </div>
         </div>}
         </div>
