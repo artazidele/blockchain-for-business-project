@@ -9,22 +9,19 @@ export function AllProjects() {
 
     const [projects, setProjects] = useState([]);
     const [projects1, setProjects1] = useState([]);
-    const [projectCount, setProjectCount] = useState(0);
 
     useEffect(() => {
         getProjects();
     }, []);
 
     useEffect(() => {
-        if (projectCount > 0) {
-            getLastProject();
-        }
+        getLastProject();
     }, [projects]);
 
     async function getLastProject() {
-        const contractAddress = localStorage.getItem('contract');
-        const signerAddress = localStorage.getItem('signer');
-        const id = projectCount;
+        const contractAddress = localStorage.getItem('contractAddress');
+        const signerAddress = localStorage.getItem('signerAddress');
+        const id = projects.length;
 
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -52,8 +49,8 @@ export function AllProjects() {
     }
 
     async function getProjects() {
-        const contractAddress = localStorage.getItem('contract');
-        const signerAddress = localStorage.getItem('signer');
+        const contractAddress = localStorage.getItem('contractAddress');
+        const signerAddress = localStorage.getItem('signerAddress');
 
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -69,12 +66,9 @@ export function AllProjects() {
             const areActive = allProjects.isActive;
             const milestoneCounts = allProjects.milestoneCount;
 
-
-            setProjectCount(names.length);
-
             let allProjectsArray = [];
 
-            for (let i = 1; i < names.length; i++) {
+            for (let i = 0; i < names.length; i++) {
                 const project = {
                     id: i,
                     name: names[i],
@@ -97,6 +91,7 @@ export function AllProjects() {
             <h1 className='ml-6 my-8 text-4xl italic text-coffee_5 font-semibold'>All projects</h1>
             <div className='grid grid-cols-3 gap-4 w-full'>
                 {projects1 && projects1.map((project) => <div key={project.id}>
+                    {/* <p>{project.id}</p> */}
                     <ProjectsItem project={ project }/>
                 </div>)}
             </div>

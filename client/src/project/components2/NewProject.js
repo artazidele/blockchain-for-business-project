@@ -43,8 +43,8 @@ export function NewProject() {
         if (isNaN(+goalAmount)) {
             setGoalAmountError(true);
         } else {
-            const contractAddress = localStorage.getItem('contract');
-            const signerAddress = localStorage.getItem('signer');
+            const contractAddress = localStorage.getItem('contractAddress');
+            const signerAddress = localStorage.getItem('signerAddress');
             const goal = parseInt(goalAmount);
             const milestoneAmounts = [];
             const milestoneDescriptions = [];

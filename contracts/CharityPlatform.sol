@@ -20,6 +20,8 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         bool isActive;
         Milestone[] milestones;
         mapping(address => uint256) donations;
+        //
+        uint256 donationCount;
     }
 
     struct Milestone {
@@ -71,20 +73,22 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         emit ProjectCreated(projectCount, _name, msg.sender);
     }
 
-    function donate(uint256 _projectId) external payable nonReentrant {
+    function donate(uint256 _projectId, address _donor) external payable nonReentrant {
         Project storage project = projects[_projectId];
         require(project.isActive, "Project is not active");
         require(msg.value > 0, "Donation amount must be greater than 0");
 
-        project.donations[msg.sender] += msg.value;
+        project.donationCount++;
+
+        project.donations[_donor] += msg.value;
         project.raisedAmount += msg.value;
 
         //
 
         // Mint donation NFT
-        donationToken.mint(msg.sender, _projectId, msg.value);
+        donationToken.mint(_donor, _projectId, msg.value);
 
-        emit DonationReceived(_projectId, msg.sender, msg.value);
+        emit DonationReceived(_projectId, _donor, msg.value);
     }
 
     function returnDonationToken() external returns (DonationToken) { 
@@ -177,6 +181,16 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
             project.raisedAmount,
             project.isActive,
             project.milestones.length
+        );
+    }
+
+    function getProjectDonations(uint256 _projectId, address _donor) external view returns (
+        uint256 donorAmount
+    ) {
+        Project storage project = projects[_projectId];
+        uint256 amount = project.donations[_donor];
+        return (
+            amount
         );
     }
 
