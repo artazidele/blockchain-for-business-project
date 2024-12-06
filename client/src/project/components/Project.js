@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import CharityPlatformContract from '../../contracts/CharityPlatform.json';
+import DonationTokenContract from '../../contracts/DonationToken.json';
 import Example from '../../contracts/Example.json';
 
 const { ethers } = require("ethers");
@@ -94,21 +95,157 @@ export function Project() {
     // 73.335172209406074468
 
     async function example() {
+        localStorage.removeItem('signerAddress2');
+        localStorage.removeItem('contractAddress2');
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = await provider.getSigner();
+        const providerSigner = await provider.getSigner();
 
+        const abi = DonationTokenContract.abi;
+            const bytecode = DonationTokenContract.bytecode;
+            const factory = new ethers.ContractFactory(abi, bytecode, providerSigner)
+            const contract = await factory.deploy();
+            
+            const platformAbi = CharityPlatformContract.abi;
+            const platformBytecode = CharityPlatformContract.bytecode;
+            const platformFactory = new ethers.ContractFactory(platformAbi, platformBytecode, providerSigner)
+            const platformContract = await platformFactory.deploy(contract.address);
+            
+            const address = await providerSigner.getAddress();
+            localStorage.setItem('contractAddress2', platformContract.address);
+            localStorage.setItem('signerAddress2', address);
+
+
+/*
         const signerAddress = await signer.getAddress();
-        localStorage.setItem('signer', signerAddress);
-        console.log(signerAddress);
+        localStorage.setItem('signerAddress', signerAddress);
+        // console.log(signerAddress);
 
         const abi = Example.abi;
         const bytecode = Example.bytecode;
-
         const factory = new ethers.ContractFactory(abi, bytecode, signer);
         const contract = await factory.deploy(1000);
 
         console.log(contract.address);
-        localStorage.setItem('contract', contract.address);
+        localStorage.setItem('contractAddress', contract.address);
+        
+        */
+
+
+        // localStorage.removeItem('signer');
+        // localStorage.removeItem('contract');
+        // const provider = new ethers.providers.Web3Provider(window.ethereum);
+        // const signer = await provider.getSigner();
+
+        // const signerAddress = await signer.getAddress();
+        // localStorage.setItem('signer', signerAddress);
+        // console.log(signerAddress);
+
+        // const abi = Example.abi;
+        // const bytecode = Example.bytecode;
+
+        // const factory = new ethers.ContractFactory(abi, bytecode, signer);
+        // const contract = await factory.deploy(1000);
+
+        // console.log(contract.address);
+        // localStorage.setItem('contract', contract.address);
+    }
+
+    async function exampleF() {
+        const contractAddress = localStorage.getItem('contractAddress2');
+        const signerAddress = localStorage.getItem('signerAddress2');
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner(signerAddress);
+            const thisContract = new ethers.Contract(contractAddress, CharityPlatformContract.abi, signer);
+            const token = await thisContract.returnDonationToken();
+            console.log(token);
+            // await project.wait();
+            // getProject();
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    async function getProject2() {
+        const contractAddress = localStorage.getItem('contractAddress2');
+        const signerAddress = localStorage.getItem('signerAddress2');
+
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner(signerAddress);
+            const thisContract = new ethers.Contract(contractAddress, CharityPlatformContract.abi, signer);
+
+            const projectWithId = await thisContract.getProject(2);
+            console.log(projectWithId);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    async function donate2() {
+        const contractAddress = localStorage.getItem('contractAddress2');
+        const signerAddress = localStorage.getItem('signerAddress2');
+
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner(signerAddress);
+            const thisContract = new ethers.Contract(contractAddress, CharityPlatformContract.abi, signer);
+
+            const projectWithId = await thisContract.donate(2, {value: 200});
+            console.log(projectWithId);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    async function getDonationToken() {
+        const contractAddress = localStorage.getItem('contractAddress2');
+        const signerAddress = localStorage.getItem('signerAddress2');
+
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner(signerAddress);
+            const thisContract = new ethers.Contract(contractAddress, CharityPlatformContract.abi, signer);
+
+            const projectWithId = await thisContract.returnDonationToken();
+            console.log(projectWithId);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    async function createProject() {
+        const contractAddress = localStorage.getItem('contractAddress2');
+            const signerAddress = localStorage.getItem('signerAddress2');
+            // const goal = parseInt(goalAmount);
+            // const milestoneAmounts = [];
+            // const milestoneDescriptions = [];
+            // milestones.forEach(milestone => {
+            //     milestoneAmounts.push(parseInt(milestone.amount));
+            //     milestoneDescriptions.push(milestone.description);
+            // });
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner(signerAddress);
+                const thisContract = new ethers.Contract(contractAddress, CharityPlatformContract.abi, signer);
+                
+
+                await thisContract.addCharity(account);
+                
+                const project = await thisContract.createProject(
+                    "MyProject", 
+                    300, 
+                    [], 
+                    []
+                );
+                await project.wait();
+    
+                thisContract.on('ProjectCreated', () => {
+                    console.log("project created");
+                })
+            } catch (error) {
+                console.error("Error:", error);
+            }
     }
 
     async function transferTokens() {
@@ -122,20 +259,28 @@ export function Project() {
             const signer = await provider.getSigner(signerAddress);
             const contract = new ethers.Contract(contractAddress, Example.abi, signer);
             const toA = "0x9BD215d2d68Ce261E35B5A2596640aCf2f61B6D5";
-            const project = await contract.transferTokens(toA, 100);
+            // const balance = await contract.balance('0x9BD215d2d68Ce261E35B5A2596640aCf2f61B6D5');
+//             const balance = await contract.balance(toA);
+// console.log(`Balance: ${balance.toString()}`);
+
+            // const amount = ethers.utils.parseUnits("2", "ether");
+            const project = await contract.transferTokens(toA, "200");
             const result = await project.wait();
             contract.on('Transfer', () => {
-                console.log("Transaction complete");
+                console.log("Transaction complete: ", result);
             });
 
-            const tx = await signer.sendTransaction({
-                to: toA,
-                value: ethers.utils.parseUnits("2", "ether")
-            });
+            const balance = await contract.balance(contractAddress);
+            console.log(`Balance: ${balance.toString()}`);
+
+            // const tx = await signer.sendTransaction({
+            //     to: toA,
+            //     value: ethers.utils.parseUnits("2", "ether")
+            // });
         
-            console.log("Transaction hash:", tx.hash);
-            await tx.wait();
-            alert("Transaction successful!");
+            // console.log("Transaction hash:", tx.hash);
+            // await tx.wait();
+            // alert("Transaction successful!");
 
             requestBalance();
         } catch (error) {
@@ -205,7 +350,10 @@ export function Project() {
             </div>}
             {balance && <p>{balance}</p>}
             <button onClick={example} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">Example</button>
-            <button onClick={transferTokens} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">Example</button>
+            <button onClick={createProject} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">create project</button>
+            <button onClick={getProject2} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">get project</button>
+            <button onClick={getDonationToken} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">donation token</button>
+            <button onClick={donate2} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">donate</button>
             </div>
         </div>}
         </div>

@@ -79,10 +79,16 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         project.donations[msg.sender] += msg.value;
         project.raisedAmount += msg.value;
 
+        //
+
         // Mint donation NFT
         donationToken.mint(msg.sender, _projectId, msg.value);
 
         emit DonationReceived(_projectId, msg.sender, msg.value);
+    }
+
+    function returnDonationToken() external returns (DonationToken) { 
+        return donationToken;
     }
 
     function completeMilestone(uint256 _projectId, uint256 _milestoneIndex) external onlyRole(ADMIN_ROLE) {
