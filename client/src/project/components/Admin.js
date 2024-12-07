@@ -79,27 +79,27 @@ export function Admin() {
         <div className="">
             <h3 className='ml-6 my-8 text-4xl italic text-coffee_5 font-semibold'>Hello, Admin!</h3>
             {account && <div>
-                <div className='bg-white p-6 rounded-lg border-solid border-2 border-coffee_5'>
+                <div className='bg-white p-6 rounded-lg border-solid border-2 border-coffee_2'>
                     <p className='pb-2 text-xl my-12'>Here you can create new charity platform, and add or remove charity role to any account.</p>
                     <p className='pb-12 font-semibold'>Your account address: {account}</p>
                     <div className='flex flex-col'>
-                        <div className='border-t-2 border-coffee_1 py-12 text-center'>
+                        <div className='border-t-2 border-coffee_2 py-12 text-center'>
                             <p className='pb-2 text-xl'>To create completely new system, click the button "Create New Charity Platform". This action will delete all previously created projects.</p>
                             <button className="bg-white text-center mt-6 hover:text-white hover:bg-red-900 hover:border-red-900 font-semibold text-red-900 py-2 px-4 border-2 border-red-900 rounded-lg" onClick={createNewCharityPlatform}>Create New Charity Platform</button>
                         </div>
-                        <div className='border-t-2 border-coffee_1 py-12'>
+                        <div className='border-t-2 border-coffee_2 py-12'>
                             <p className='pb-2 text-xl'>To add new charity role, type a new address and click the button "Add Charity Role".</p>
                             <div className="mt-6 flex items-center justify-between gap-2">
                                 <label className='font-semibold'>New charity address:</label>
-                                <input value={newCharity} onChange={e => setNewCharity(e.target.value)} className="p-2 bg-transparent border-b-solid border-b-2 border-b-coffee_5 grow"/>                    
+                                <input value={newCharity} onChange={e => setNewCharity(e.target.value)} className="p-2 bg-transparent border-b-solid border-b border-b-coffee_5 grow"/>                    
                             </div>
                             <button className="float-right bg-white text-center mt-6 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg" onClick={addCharityRole}>Add Charity Role</button>
                         </div>
-                        <div className='border-t-2 border-coffee_1 py-12'>
+                        <div className='border-t-2 border-coffee_2 py-12'>
                             <p className='pb-2 text-xl'>To remove existing charity role, type the address and click the button "Remove Charity Role".</p>                        
                             <div className="mt-6 flex items-center justify-between gap-2">
                                 <label className='font-semibold'>Existing charity address:</label>
-                                <input value={existingCharity} onChange={e => setExistingCharity(e.target.value)} className="p-2 bg-transparent border-b-solid border-b-2 border-b-coffee_5 grow"/>                    
+                                <input value={existingCharity} onChange={e => setExistingCharity(e.target.value)} className="p-2 bg-transparent border-b-solid border-b border-b-coffee_5 grow"/>                    
                             </div>
                             <button className="float-right bg-white text-center mt-6 hover:text-white hover:bg-red-900 hover:border-red-900 font-semibold text-red-900 py-2 px-4 border-2 border-red-900 rounded-lg" onClick={removeCharityRole}>Remove Charity Role</button>
                         </div>

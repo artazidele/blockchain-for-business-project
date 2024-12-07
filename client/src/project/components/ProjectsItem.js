@@ -8,7 +8,7 @@ const ProjectsItem = (props) => {
     return (
         // <div className='text-left h-full p-1 bg-white border-solid border-2 border-lime-900'>
         // <div className='text-left h-full p-4 bg-white border-solid border-2 border-red-900'>
-        <div className='text-left h-full p-4 bg-white rounded-lg border-solid border-2 border-coffee_5'>
+        <div className='text-left h-full p-4 bg-white rounded-lg border-solid border-2 border-coffee_2'>
             {project && <div>
                 {project.isActive && <div className='w-full text-lime-900 italic text-sm text-right my-4'><p>Active</p></div>}
                 {!project.isActive && <div className='w-full text-red-900 italic text-sm text-right my-4'><p>Not active</p></div>}
@@ -17,7 +17,7 @@ const ProjectsItem = (props) => {
                 <p className='my-2'>Raised amount: {project.raisedAmount.toString()} EUR</p>
                 <div className='w-full'>
                     <Link to={`/${project.id}`}>
-                        <button className='text-coffee_5  italic float-right my-6'>Show more &rarr;</button>
+                        <button className='text-coffee_5 border-b-2 border-white hover:border-coffee_2 italic float-right my-6'>Show more &rarr;</button>
                     </Link>
                 </div>
             </div>}

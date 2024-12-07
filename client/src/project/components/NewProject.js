@@ -81,19 +81,19 @@ export function NewProject() {
             <div className="">
                 <h3 className='ml-6 my-8 text-4xl italic text-coffee_5 font-semibold'>New Project</h3>
                 <form>
-                <div className='bg-white p-6 rounded-lg border-solid border-2 border-coffee_5'>
+                <div className='bg-white p-6 rounded-lg border-solid border-2 border-coffee_2'>
                 
                     <div className="mt-6 flex items-center justify-between gap-2">
                         <label className='font-semibold'>Title:</label>
-                        <input onChange={e => setTitle(e.target.value)} className="p-2 bg-transparent border-b-solid border-b-2 border-b-coffee_5 grow"/>                    
+                        <input onChange={e => setTitle(e.target.value)} className="p-2 bg-transparent border-b-solid border-b border-b-coffee_5 grow"/>                    
                     </div>
                     <div className="mt-6 flex items-center justify-between gap-2">
                         <label className='font-semibold'>Goal amount (EUR): </label>
-                        <input onChange={e => setGoalAmount(e.target.value)} className="p-2 bg-transparent border-b-solid border-b-2 border-b-coffee_5 grow"/>                    
+                        <input onChange={e => setGoalAmount(e.target.value)} className="p-2 bg-transparent border-b-solid border-b border-b-coffee_5 grow"/>                    
                     </div>
                     {goalAmountError && <p className='w-full text-red-900 italic text-sm my-4'>Goal amount must be number.</p>}
                     <div className="text-left mt-6">
-                        <h6 className='font-semibold border-t-solid border-t-2 pt-6 border-t-coffee_4'>Milestones:</h6>
+                        <h6 className='font-semibold border-t-solid border-t-2 pt-6 border-t-coffee_2'>Milestones:</h6>
                         {milestones && milestones.map((milestone, index) => <div key={index++} className='mt-6 pb-2 border-b-solid border-b border-b-coffee_5'>
                             <div className='flex gap-2'>
                                 <p className='font-semibold'>Amount: </p>
@@ -107,12 +107,12 @@ export function NewProject() {
                         <h6 className="mt-6 font-semibold">New milestone:</h6>
                         <div className="mt-6 flex items-center justify-between gap-2">
                             <label className='font-semibold'>Amount (EUR):</label>
-                            <input onChange={e => setAmount(e.target.value)} value={amount} className="p-2 bg-transparent border-b-solid border-b-2 border-b-coffee_5 grow"/>                    
+                            <input onChange={e => setAmount(e.target.value)} value={amount} className="p-2 bg-transparent border-b-solid border-b border-b-coffee_5 grow"/>                    
                         </div>
                         {amountError && <p className='w-full text-red-900 italic text-sm my-4'>Amount must be number.</p>}
                         <div className="mt-6 flex-row items-center justify-between">
                             <label  className='font-semibold'>Description: </label>
-                            <textarea onChange={e => setDescription(e.target.value)} value={description} className="p-2 bg-transparent mt-4 rounded-md min-h-32 border-solid border-2 border-coffee_5 w-full"/>                   
+                            <textarea onChange={e => setDescription(e.target.value)} value={description} className="p-2 bg-transparent mt-4 rounded-md min-h-32 border-solid border-2 border-coffee_2 w-full"/>                   
                         </div>
                         <button onClick={saveMilestone} className="mt-2 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">Add Milestone</button>
                     </div>

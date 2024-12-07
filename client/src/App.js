@@ -12,7 +12,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 function App() {
   return (
-    <div className="relative min-h-screen font-serif bg-coffee_1 mt-0">
+    // <div className="relative min-h-screen font-serif bg-coffee_1 mt-0">
+    <div className="relative min-h-screen font-serif mt-0">
       <Header />
       <div className='w-2/3 m-auto pt-48 pb-64'>
         <BrowserRouter>

@@ -126,13 +126,13 @@ export function Project() {
         <div>
         {project && <div>
         <h3 className='ml-6 my-8 text-4xl italic text-coffee_5 font-semibold'>{ project.name }</h3>
-        <div className='bg-white p-6 rounded-lg border-solid border-2 border-coffee_5'>
+        <div className='bg-white p-6 rounded-lg border-solid border-2 border-coffee_2'>
             {project.isActive && <div className='w-full text-lime-900 italic text-xl text-right px-12 my-4'><p>Active</p></div>}
             {!project.isActive && <div className='w-full text-red-900 italic text-xl text-right px-12 my-4'><p>Not active</p></div>}
             <h2 className='font-semibold text-xl my-6'>Goal amount: { project.goalAmount.toString() } EUR</h2>
             <h2 className='font-semibold text-xl my-6'>Raised amount: { project.raisedAmount.toString() } EUR</h2>
-            <h2 className='font-semibold text-xl my-6 pt-6 border-t-2 border-t-coffee_4'>Milestones: </h2>            
-            {milestones && milestones.map((milestone, index) => <div className='my-8 pb-6 border-b border-b-coffee_4' key={index++}>
+            <h2 className='font-semibold text-xl my-6 pt-6 border-t-2 border-t-coffee_2'>Milestones: </h2>            
+            {milestones && milestones.map((milestone, index) => <div className='my-8 pb-6 border-b border-b-coffee_2' key={index++}>
                 <h2 className='font-medium text-lg my-4'>Target amount: { project.goalAmount.toString() } EUR</h2>
                 <h2 className='font-medium text-lg my-4'>Description:</h2>
                 <p>{ milestone.description }</p>
@@ -146,7 +146,7 @@ export function Project() {
                     <form>
                         <div className="mt-6 flex items-center justify-between gap-2">
                             <label className='font-semibold'>Amount (EUR): </label>
-                            <input value={amount} onChange={e => setAmount(e.target.value)} className="p-2 bg-transparent border-b-solid border-b-2 border-b-coffee_5 grow"/>                    
+                            <input value={amount} onChange={e => setAmount(e.target.value)} className="p-2 bg-transparent border-b-solid border-b border-b-coffee_5 grow"/>                    
                         </div>  
                         {amountError && <p className='w-full text-red-900 italic text-sm my-4'>Amount must be number.</p>}                  
                         <button onClick={donate} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">Donate</button>
