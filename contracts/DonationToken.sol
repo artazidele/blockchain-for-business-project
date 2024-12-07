@@ -23,6 +23,7 @@ contract DonationToken is ERC721 {
     function mint(address donor, uint256 projectId, uint256 amount) public returns (uint256) {
         _tokenIds++;
         uint256 newTokenId = _tokenIds;
+
         _mint(donor, newTokenId);
         
         donationInfo[newTokenId] = DonationInfo({

@@ -36,6 +36,7 @@ export function Project() {
             const account = await window.ethereum.request({ method: 'eth_requestAccounts' });
             const uppercaseAddress = ethers.utils.getAddress(account[0]);
             setAccount(uppercaseAddress);
+            // setAccount(account[0]);
         }
     }
 
@@ -99,6 +100,7 @@ export function Project() {
         e.preventDefault();
         setAmountError(false);
         console.log(account);
+        console.log(project.charityAddress);
         if(isNaN(amount)) {
             setAmountError(true);
         } else {
@@ -109,7 +111,20 @@ export function Project() {
                 const signer = provider.getSigner(signerAddress);
                 const thisContract = new ethers.Contract(contractAddress, CharityPlatformContract.abi, signer);
     
-                const projectWithId = await thisContract.donate(id, account, {value: amount});
+                // const projectWithId = await thisContract.donate(id, account, {value: amount});
+                // const uppercaseAddress = ethers.utils.getAddress(project.charityAddress);
+    //             const account7 = "0x15fAA99E68F256CFc6A61703C1b209AAc059254b";
+    // const account10 = "0x46956ae2A728B38E168cd786A1077966427967AB";
+
+                // console.log(project.charityAddress);
+                const balance = await provider.getBalance(account7);
+                const balance2 = await provider.getBalance(account10);
+                console.log(ethers.utils.formatEther(balance));
+                console.log(ethers.utils.formatEther(balance2))
+                const projectWithId = await thisContract.donate(id, account, {value: ethers.utils.parseEther(amount)});
+                
+                // const projectWithId = await thisContract.donateToken(id, account, amount);
+                
                 await projectWithId.wait();
                 console.log(projectWithId);
                 thisContract.on('DonationReceived', () => {
