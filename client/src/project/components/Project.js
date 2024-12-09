@@ -101,6 +101,10 @@ export function Project() {
         setAmountError(false);
         console.log(account);
         console.log(project.charityAddress);
+
+        setAmount(2);
+
+
         if(isNaN(amount)) {
             setAmountError(true);
         } else {
@@ -117,20 +121,31 @@ export function Project() {
     // const account10 = "0x46956ae2A728B38E168cd786A1077966427967AB";
 
                 // console.log(project.charityAddress);
-                const balance = await provider.getBalance(account7);
-                const balance2 = await provider.getBalance(account10);
-                console.log(ethers.utils.formatEther(balance));
-                console.log(ethers.utils.formatEther(balance2))
-                const projectWithId = await thisContract.donate(id, account, {value: ethers.utils.parseEther(amount)});
+                // const balance = await provider.getBalance(account7);
+                // const balance2 = await provider.getBalance(account10);
+                // console.log(ethers.utils.formatEther(balance));
+                // console.log(ethers.utils.formatEther(balance2))
+                
+                const tokenAmount = ethers.utils.parseUnits(amount.toString(), 18);
+
+                // const token = new ethers.Contract(project.charityAddress, [
+                //     "function approve(address spender, uint256 amount) external returns (bool)"
+                //   ], signer);
+                
+                //   const approveTx = await token.approve(account7, tokenAmount);
+                //   await approveTx.wait();
+
+                // const projectWithId = await thisContract.donate(id, account7, { value: tokenAmount });
+                const projectWithId = await thisContract.donate2(account10, { value: tokenAmount });
+                
                 
                 // const projectWithId = await thisContract.donateToken(id, account, amount);
-                
                 await projectWithId.wait();
                 console.log(projectWithId);
-                thisContract.on('DonationReceived', () => {
-                    setAmount("");
-                    getProject();
-                });
+                // thisContract.on('DonationReceived', () => {
+                //     setAmount("");
+                //     getProject();
+                // });
             } catch (error) {
                 console.error("Error:", error);
             }
@@ -170,6 +185,8 @@ export function Project() {
                     {/* <button onClick={getProjectDonations} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">Project donations</button> */}
 
                 </div>}
+                <button onClick={donate} className="bg-white text-center mt-12 hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg">Donate</button>
+
             </div>}
             </div>
         </div>}
