@@ -45,7 +45,7 @@ export function AllProjects() {
             };
             const allProjectsArray = projects;
             allProjectsArray.push(project);
-            setProjects1(allProjectsArray);
+            setProjects1(projects);
         } catch (error) {
             console.error("Error:", error);
         }

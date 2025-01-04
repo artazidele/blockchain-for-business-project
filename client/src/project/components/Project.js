@@ -56,7 +56,7 @@ export function Project() {
 
             // Fetch donations for the current user
             const donations = await thisContract.getProjectDonations(id, account);
-            setAccountAmount(parseInt(donations));
+            setAccountAmount((ethers.utils.formatEther(donations)*3.50248).toFixed(2));
         } catch (error) {
             console.error("Error fetching project data:", error);
         } finally {
@@ -87,11 +87,17 @@ export function Project() {
 
             try {
                 const thisContract = initializeContract();
-                const tokenAmount = ethers.utils.parseUnits(amount.toString(), 18);
-                const tx = await thisContract.donate(account, { value: tokenAmount });
+                const tokenAmount = ethers.utils.parseUnits((amount*0.28551198).toString(), 18);
+                const tx = await thisContract.donate(id, account, project.charityAddress, { value: tokenAmount });
                 await tx.wait();
-                setAmount("");
-                fetchProjectData();
+                thisContract.on('DonationReceived', () => {
+                    setAmount("");
+                    fetchProjectData();
+                    console.log('DonationReceived');
+                });
+                thisContract.on('MilestoneCompleted', () => {
+                    console.log('MilestoneCompleted');
+                });
             } catch (error) {
                 console.error("Error during donation:", error);
             }
@@ -117,10 +123,10 @@ export function Project() {
                             <p>{project.isActive ? "Active" : "Not active"}</p>
                         </div>
                         <h2 className="font-semibold text-xl my-6">
-                            Goal amount: {project.goalAmount ? project.goalAmount.toString() : "N/A"} EUR
+                            Goal amount: {project.goalAmount ? (ethers.utils.formatEther(project.goalAmount)*3.50248).toFixed(2) : "N/A"} EUR
                         </h2>
                         <h2 className="font-semibold text-xl my-6">
-                            Raised amount: {project.raisedAmount ? project.raisedAmount.toString() : "N/A"} EUR
+                            Raised amount: {project.raisedAmount ? (ethers.utils.formatEther(project.raisedAmount)*3.50248).toFixed(2) : "N/A"} EUR
                         </h2>
                         <h2 className="font-semibold text-xl my-6 pt-6 border-t-2 border-t-coffee_2">Milestones:</h2>
 
@@ -128,10 +134,13 @@ export function Project() {
                             milestones.map((milestone, index) => (
                                 <div className="my-8 pb-6 border-b border-b-coffee_2" key={index}>
                                     <h2 className="font-medium text-lg my-4">
-                                        Target amount: {milestone.amount ? milestone.amount.toString() : "N/A"} EUR
+                                        Target amount: {milestone.targetAmount ? (ethers.utils.formatEther(milestone.targetAmount)*3.50248).toFixed(2) : "N/A"} EUR
                                     </h2>
                                     <h2 className="font-medium text-lg my-4">Description:</h2>
                                     <p>{milestone.description || "No description provided."}</p>
+                                    <p className={`w-full italic text-sm text-right my-4 ${
+                                        milestone.isCompleted ? "text-lime-900" : "text-red-900"
+                                    }`}>{milestone.isCompleted ? "Completed" : "Not completed."}</p>
                                 </div>
                             ))
                         ) : (

@@ -10989,12 +10989,12 @@
         }
       },
       "links": {},
-      "address": "0xF3B189b2D6eDa30Bd1ACF54BF3Cb93e601e07973",
-      "transactionHash": "0xac99e4ee6ee2d6e6cddf38fe9e8bb50d2e97219509c281afc6ec741656b97aed"
+      "address": "0xdC6882d8199CfC96ce271e753b23ed321cF41552",
+      "transactionHash": "0xd90aceb030e195690b7146dd85fd6847aadd1faa993e6c76d8ed4ad7e1027cf5"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-12-07T13:35:10.635Z",
+  "updatedAt": "2025-01-04T20:35:59.364Z",
   "networkType": "ethereum",
   "devdoc": {
     "errors": {

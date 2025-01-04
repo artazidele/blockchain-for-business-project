@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import CharityPlatformContract from '../../contracts/CharityPlatform.json';
 const { ethers } = require("ethers");
 
 export function NewProject() {
+    const [account, setAccount] = useState("");
     const [milestones, setMilestones] = useState([]);
     const [goalAmount, setGoalAmount] = useState("");
     const [goalAmountError, setGoalAmountError] = useState(false);
@@ -11,6 +12,23 @@ export function NewProject() {
     const [amountError, setAmountError] = useState(false);
     const [description, setDescription] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+
+    useEffect(() => {
+        requestAccount();
+    }, []);
+
+    const requestAccount = useCallback(async () => {
+        if (window.ethereum == null) {
+            console.log("MetaMask not installed; using read-only defaults");
+            return;
+        }
+        try {
+            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            setAccount(ethers.utils.getAddress(accounts[0]));
+        } catch (error) {
+            console.error("Failed to fetch account:", error);
+        }
+    }, []);
 
     const totalMilestoneSum = useMemo(() => 
         milestones.reduce((sum, milestone) => sum + parseInt(milestone.amount || 0), 0),
@@ -79,12 +97,15 @@ export function NewProject() {
                 const signer = provider.getSigner(signerAddress);
                 const thisContract = new ethers.Contract(contractAddress, CharityPlatformContract.abi, signer);
 
-                const milestoneAmounts = milestones.map(milestone => parseInt(milestone.amount));
+                const milestoneAmounts = milestones.map(milestone => 
+                    ethers.utils.parseUnits((milestone.amount*0.28551198).toString(), 18)
+                );
                 const milestoneDescriptions = milestones.map(milestone => milestone.description);
 
                 const project = await thisContract.createProject(
+                    account,
                     title,
-                    parseInt(goalAmount),
+                    ethers.utils.parseUnits((goalAmount*0.28551198).toString(), 18),
                     milestoneDescriptions,
                     milestoneAmounts
                 );
