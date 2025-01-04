@@ -45,6 +45,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
     }
 
     function createProject(
+        address _address,
         string memory _name,
         uint256 _goalAmount,
         string[] memory _milestoneDescriptions,
@@ -55,7 +56,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         projectCount++;
         Project storage project = projects[projectCount];
         project.name = _name;
-        project.charityAddress = msg.sender;
+        project.charityAddress = _address;
         project.goalAmount = _goalAmount;
         project.isActive = true;
 
@@ -71,35 +72,17 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         emit ProjectCreated(projectCount, _name, msg.sender);
     }
 
-    function donate(uint256 _projectId, address _donor) external payable nonReentrant {
+    function donate(uint256 _projectId, address _donor, address _recipient) external payable nonReentrant {
         Project storage project = projects[_projectId];
         require(project.isActive, "Project is not active");
         require(msg.value > 0, "Donation amount must be greater than 0");
-
-        // IERC20 token = IERC20(project.charityAddress);
-        // require(token.transferFrom(_donor, project.charityAddress, msg.value), "Token transfer failed");
-
-        address payable recipient = payable(project.charityAddress); 
-        recipient.transfer(msg.value);
-
-        project.donations[_donor] += msg.value;
-        project.raisedAmount += msg.value;
-
-        // Mint donation NFT
-        donationToken.mint(_donor, _projectId, msg.value);
-
-        emit DonationReceived(_projectId, _donor, msg.value);
-    }
-
-    function donate2(address _recipient) public payable returns (bool) {
-        
         address payable recipient = payable(_recipient); 
-        // recipient.transfer(msg.value);
-
         bool success = recipient.send(msg.value);
         require(success, "Ether transfer failed");
-        return success;
-
+        project.donations[_donor] += msg.value;
+        project.raisedAmount += msg.value;
+        donationToken.mint(_donor, _projectId, msg.value);
+        emit DonationReceived(_projectId, _donor, msg.value);
     }
 
     function completeMilestone(uint256 _projectId, uint256 _milestoneIndex) external onlyRole(ADMIN_ROLE) {
@@ -224,6 +207,89 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
             milestoneCounts[i] = projects[i].milestones.length;
         }
         return (
+            allNames, 
+            allCharityAddreses, 
+            allGoalAmounts,
+            allRaisedAmounts,
+            areActive,
+            milestoneCounts
+        );
+    }
+
+    function getMyDonationProjects(address _donor) external view returns (
+        uint256[] memory id,
+        string[] memory name,
+        address[] memory charityAddress,
+        uint256[] memory goalAmount,
+        uint256[] memory raisedAmount,
+        bool[] memory isActive,
+        uint256[] memory milestoneCount
+    ) {        
+        uint256[] memory allIds = new uint256[](projectCount);
+        string[] memory allNames = new string[](projectCount);
+        address[] memory allCharityAddreses = new address[](projectCount);
+        uint256[] memory allGoalAmounts = new uint256[](projectCount);
+        uint256[] memory allRaisedAmounts = new uint256[](projectCount);
+        bool[] memory areActive = new bool[](projectCount);
+        uint256[] memory milestoneCounts = new uint256[](projectCount);
+
+        uint count = 0;
+        
+        for (uint i = 0; i < projectCount; i++) {
+            if (projects[i].donations[_donor] > 0) {
+                allIds[count] = i;
+                allNames[count] = projects[i].name;
+                allCharityAddreses[count] = projects[i].charityAddress;
+                allGoalAmounts[count] = projects[i].goalAmount;
+                allRaisedAmounts[count] = projects[i].raisedAmount;
+                areActive[count] = projects[i].isActive;
+                count += 1;
+            }
+        }
+
+        return (
+            allIds,
+            allNames, 
+            allCharityAddreses, 
+            allGoalAmounts,
+            allRaisedAmounts,
+            areActive,
+            milestoneCounts
+        );
+    }
+
+    function getMyCharityProjects(address _address) external view returns (
+        uint256[] memory id,
+        string[] memory name,
+        address[] memory charityAddress,
+        uint256[] memory goalAmount,
+        uint256[] memory raisedAmount,
+        bool[] memory isActive,
+        uint256[] memory milestoneCount
+    ) {
+        uint256[] memory allIds = new uint256[](projectCount);
+        string[] memory allNames = new string[](projectCount);
+        address[] memory allCharityAddreses = new address[](projectCount);
+        uint256[] memory allGoalAmounts = new uint256[](projectCount);
+        uint256[] memory allRaisedAmounts = new uint256[](projectCount);
+        bool[] memory areActive = new bool[](projectCount);
+        uint256[] memory milestoneCounts = new uint256[](projectCount);
+        
+        uint count = 0;
+
+        for (uint i = 0; i < projectCount; i++) {
+            if (projects[i].charityAddress == _address) {
+                allNames[count] = projects[i].name;
+                allCharityAddreses[count] = projects[i].charityAddress;
+                allGoalAmounts[count] = projects[i].goalAmount;
+                allRaisedAmounts[count] = projects[i].raisedAmount;
+                areActive[count] = projects[i].isActive;
+                milestoneCounts[count] = projects[i].milestones.length;
+                count += 1;
+            }
+        }
+        return (
+            allIds,
             allNames, 
             allCharityAddreses, 
             allGoalAmounts,
