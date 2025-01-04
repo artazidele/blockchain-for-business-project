@@ -69,7 +69,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
             }));
         }
 
-        emit ProjectCreated(projectCount, _name, msg.sender);
+        emit ProjectCreated(projectCount, _name, _address);
     }
 
     function donate(uint256 _projectId, address _donor, address _recipient) external payable nonReentrant {
@@ -216,86 +216,57 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         );
     }
 
-    function getMyDonationProjects(address _donor) external view returns (
-        uint256[] memory id,
-        string[] memory name,
-        address[] memory charityAddress,
-        uint256[] memory goalAmount,
-        uint256[] memory raisedAmount,
-        bool[] memory isActive,
-        uint256[] memory milestoneCount
-    ) {        
+    function getMyDonationProjectIds(address _donor) external view returns (
+        uint256[] memory id
+    ) {     
         uint256[] memory allIds = new uint256[](projectCount);
-        string[] memory allNames = new string[](projectCount);
-        address[] memory allCharityAddreses = new address[](projectCount);
-        uint256[] memory allGoalAmounts = new uint256[](projectCount);
-        uint256[] memory allRaisedAmounts = new uint256[](projectCount);
-        bool[] memory areActive = new bool[](projectCount);
-        uint256[] memory milestoneCounts = new uint256[](projectCount);
-
         uint count = 0;
-        
         for (uint i = 0; i < projectCount; i++) {
             if (projects[i].donations[_donor] > 0) {
                 allIds[count] = i;
-                allNames[count] = projects[i].name;
-                allCharityAddreses[count] = projects[i].charityAddress;
-                allGoalAmounts[count] = projects[i].goalAmount;
-                allRaisedAmounts[count] = projects[i].raisedAmount;
-                areActive[count] = projects[i].isActive;
                 count += 1;
             }
         }
-
         return (
-            allIds,
-            allNames, 
-            allCharityAddreses, 
-            allGoalAmounts,
-            allRaisedAmounts,
-            areActive,
-            milestoneCounts
+            allIds
         );
     }
 
-    function getMyCharityProjects(address _address) external view returns (
-        uint256[] memory id,
-        string[] memory name,
-        address[] memory charityAddress,
-        uint256[] memory goalAmount,
-        uint256[] memory raisedAmount,
-        bool[] memory isActive,
-        uint256[] memory milestoneCount
+    function getMyDonationProject(uint256 _projectId, address _donor) external view returns (
+        string memory name,
+        address charityAddress,
+        uint256 goalAmount,
+        uint256 raisedAmount,
+        bool isActive,
+        uint256 milestoneCount,
+        uint256 donorAmount
     ) {
-        uint256[] memory allIds = new uint256[](projectCount);
-        string[] memory allNames = new string[](projectCount);
-        address[] memory allCharityAddreses = new address[](projectCount);
-        uint256[] memory allGoalAmounts = new uint256[](projectCount);
-        uint256[] memory allRaisedAmounts = new uint256[](projectCount);
-        bool[] memory areActive = new bool[](projectCount);
-        uint256[] memory milestoneCounts = new uint256[](projectCount);
-        
-        uint count = 0;
+        Project storage project = projects[_projectId];
+        uint256 amount = project.donations[_donor];
+        return (
+            project.name,
+            project.charityAddress,
+            project.goalAmount,
+            project.raisedAmount,
+            project.isActive,
+            project.milestones.length,
+            amount
+        );
+    }
 
+    function getMyCharityProjectIds(address _address) external view returns (
+        uint256[] memory id
+    ) {     
+        uint256[] memory allIds = new uint256[](projectCount);
+        uint count = 0;
         for (uint i = 0; i < projectCount; i++) {
             if (projects[i].charityAddress == _address) {
-                allNames[count] = projects[i].name;
-                allCharityAddreses[count] = projects[i].charityAddress;
-                allGoalAmounts[count] = projects[i].goalAmount;
-                allRaisedAmounts[count] = projects[i].raisedAmount;
-                areActive[count] = projects[i].isActive;
-                milestoneCounts[count] = projects[i].milestones.length;
+                allIds[count] = i;
                 count += 1;
             }
         }
         return (
-            allIds,
-            allNames, 
-            allCharityAddreses, 
-            allGoalAmounts,
-            allRaisedAmounts,
-            areActive,
-            milestoneCounts
+            allIds
         );
     }
 
