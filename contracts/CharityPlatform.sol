@@ -25,6 +25,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
     struct Milestone {
         string description;
         uint256 targetAmount;
+        uint256 raisedAmount;
         bool isCompleted;
         bool fundsReleased;
     }
@@ -64,6 +65,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
             project.milestones.push(Milestone({
                 description: _milestoneDescriptions[i],
                 targetAmount: _milestoneTargets[i],
+                raisedAmount: 0,
                 isCompleted: false,
                 fundsReleased: false
             }));
@@ -72,7 +74,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         emit ProjectCreated(projectCount, _name, _address);
     }
 
-    function donate(uint256 _projectId, address _donor, address _recipient) external payable nonReentrant {
+    function donate(uint256 _projectId, uint256 _milestoneId, address _donor, address _recipient) external payable nonReentrant {
         Project storage project = projects[_projectId];
         require(project.isActive, "Project is not active");
         require(msg.value > 0, "Donation amount must be greater than 0");
@@ -84,37 +86,11 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         donationToken.mint(_donor, _projectId, msg.value);
         emit DonationReceived(_projectId, _donor, msg.value);
 
-        uint256 milestoneAmount = 0;
-        
-        for (uint i=0; i < project.milestones.length; i++) {
-            milestoneAmount += project.milestones[i].targetAmount;
-            if (project.raisedAmount >= milestoneAmount && !project.milestones[i].isCompleted) {
-                completeMilestone(_projectId, i);
-            }
+        project.milestones[_milestoneId].raisedAmount += msg.value;
+        if (project.milestones[_milestoneId].raisedAmount == project.milestones[_milestoneId].targetAmount && !project.milestones[_milestoneId].isCompleted) {
+            completeMilestone(_projectId, _milestoneId);
         }
     }
-
-    // function completeMilestone(uint256 _projectId, uint256 _milestoneIndex) external onlyRole(ADMIN_ROLE) {
-    //     Project storage project = projects[_projectId];
-    //     require(_milestoneIndex < project.milestones.length, "Invalid milestone index");
-        
-    //     Milestone storage milestone = project.milestones[_milestoneIndex];
-    //     require(!milestone.isCompleted, "Milestone already completed");
-        
-    //     milestone.isCompleted = true;
-    //     emit MilestoneCompleted(_projectId, _milestoneIndex);
-
-    //     // Release funds for completed milestone
-    //     if(!milestone.fundsReleased && project.raisedAmount >= milestone.targetAmount) {
-    //         milestone.fundsReleased = true;
-    //         uint256 releaseAmount = milestone.targetAmount;
-            
-    //         (bool success, ) = project.charityAddress.call{value: releaseAmount}("");
-    //         require(success, "Fund transfer failed");
-            
-    //         emit FundsReleased(_projectId, releaseAmount);
-    //     }
-    // }
 
     function completeMilestone(uint256 _projectId, uint256 _milestoneIndex) internal {
         Project storage project = projects[_projectId];
