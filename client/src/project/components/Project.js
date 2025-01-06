@@ -187,7 +187,7 @@ export function Project() {
 
             try {
                 const thisContract = initializeContract();
-                const tx = await thisContract.donate(id, account, project?.charityAddress, {
+                const tx = await thisContract.donate(id, milestoneIndex, account, project?.charityAddress, {
                     value: weiValue
                 });
                 await tx.wait();
