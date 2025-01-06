@@ -13,29 +13,35 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
     DonationToken public donationToken;
     
     struct Project {
+        uint256 id;
         string name;
         address charityAddress;
         uint256 goalAmount;
         uint256 raisedAmount;
         bool isActive;
-        Milestone[] milestones;
+        uint256[] milestones;
         mapping(address => uint256) donations;
     }
 
     struct Milestone {
+        uint256 id;
+        uint256 projectId;
         string description;
         uint256 targetAmount;
         uint256 raisedAmount;
         bool isCompleted;
         bool fundsReleased;
+        mapping(address => uint256) donations;
     }
 
     mapping(uint256 => Project) public projects;
+    mapping(uint256 => Milestone) public milestones;
     uint256 public projectCount;
+    uint256 public milestonesCount;
 
     event ProjectCreated(uint256 indexed projectId, string name, address charityAddress);
     event DonationReceived(uint256 indexed projectId, address indexed donor, uint256 amount);
-    event MilestoneCompleted(uint256 indexed projectId, uint256 milestoneIndex);
+    event MilestoneCompleted(uint256 milestoneIndex);
     event FundsReleased(uint256 indexed projectId, uint256 amount);
     event RefundIssued(uint256 indexed projectId, address indexed donor, uint256 amount);
 
@@ -62,16 +68,28 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         project.isActive = true;
 
         for(uint i = 0; i < _milestoneDescriptions.length; i++) {
-            project.milestones.push(Milestone({
-                description: _milestoneDescriptions[i],
-                targetAmount: _milestoneTargets[i],
-                raisedAmount: 0,
-                isCompleted: false,
-                fundsReleased: false
-            }));
+            createMilestone(_milestoneDescriptions[i], _milestoneTargets[i], projectCount);
         }
 
         emit ProjectCreated(projectCount, _name, _address);
+    }
+
+    function createMilestone(
+        string memory _description,
+        uint256 _targetAmount,
+        uint256 _projectId
+    ) internal onlyRole(CHARITY_ROLE) {
+        milestonesCount++;
+        Milestone storage milestone = milestones[milestonesCount];
+        milestone.id = milestonesCount;
+        milestone.projectId = _projectId;
+        milestone.description = _description;
+        milestone.targetAmount = _targetAmount;
+        milestone.raisedAmount = 0;
+        milestone.isCompleted = false;
+        milestone.fundsReleased = false;
+        Project storage project = projects[_projectId];
+        project.milestones.push(milestonesCount);
     }
 
     function donate(uint256 _projectId, uint256 _milestoneId, address _donor, address _recipient) external payable nonReentrant {
@@ -84,34 +102,25 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         project.donations[_donor] += msg.value;
         project.raisedAmount += msg.value;
         donationToken.mint(_donor, _projectId, msg.value);
+
+        uint256 milestoneProjectIndex = project.milestones[_milestoneId];
+        Milestone storage milestone = milestones[milestoneProjectIndex];
+        milestone.donations[_donor] += msg.value;
+        milestone.raisedAmount += msg.value;
+
         emit DonationReceived(_projectId, _donor, msg.value);
 
-        project.milestones[_milestoneId].raisedAmount += msg.value;
-        if (project.milestones[_milestoneId].raisedAmount == project.milestones[_milestoneId].targetAmount && !project.milestones[_milestoneId].isCompleted) {
-            completeMilestone(_projectId, _milestoneId);
+        if (milestone.raisedAmount == milestone.targetAmount && !milestone.isCompleted) {
+            completeMilestone(milestone.id);
         }
     }
 
-    function completeMilestone(uint256 _projectId, uint256 _milestoneIndex) internal {
-        Project storage project = projects[_projectId];
-        require(_milestoneIndex < project.milestones.length, "Invalid milestone index");
-        
-        Milestone storage milestone = project.milestones[_milestoneIndex];
+    function completeMilestone(uint256 _milestoneIndex) internal {
+        Milestone storage milestone = milestones[_milestoneIndex];
         require(!milestone.isCompleted, "Milestone already completed");
         
         milestone.isCompleted = true;
-        emit MilestoneCompleted(_projectId, _milestoneIndex);
-
-        // Release funds for completed milestone
-        // if(!milestone.fundsReleased && project.raisedAmount >= milestone.targetAmount) {
-        //     milestone.fundsReleased = true;
-        //     uint256 releaseAmount = milestone.targetAmount;
-            
-        //     (bool success, ) = project.charityAddress.call{value: releaseAmount}("");
-        //     require(success, "Fund transfer failed");
-            
-        //     emit FundsReleased(_projectId, releaseAmount);
-        // }
+        emit MilestoneCompleted(_milestoneIndex);
     }
 
     function requestRefund(uint256 _projectId) external nonReentrant {
@@ -133,23 +142,6 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         Project storage project = projects[_projectId];
         require(project.isActive, "Project already inactive");
         project.isActive = false;
-    }
-
-    // Multi-currency support functions
-    function donateToken(uint256 _projectId, address _tokenAddress, uint256 _amount) external nonReentrant {
-        Project storage project = projects[_projectId];
-        require(project.isActive, "Project is not active");
-        
-        IERC20 token = IERC20(_tokenAddress);
-        require(token.transferFrom(msg.sender, address(this), _amount), "Token transfer failed");
-        
-        project.donations[msg.sender] += _amount;
-        project.raisedAmount += _amount;
-
-        // Mint donation NFT
-        donationToken.mint(msg.sender, _projectId, _amount);
-        
-        emit DonationReceived(_projectId, msg.sender, _amount);
     }
 
     // Administrative functions
@@ -286,7 +278,9 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         Project storage project = projects[_projectId];
         require(_milestoneIndex < project.milestones.length, "Invalid milestone index");
         
-        Milestone storage milestone = project.milestones[_milestoneIndex];
+        uint256 milestoneProjectIndex = project.milestones[_milestoneIndex];
+        Milestone storage milestone = milestones[milestoneProjectIndex];
+        // Milestone storage milestone = project.milestones[_milestoneIndex];
         return (
             milestone.description,
             milestone.targetAmount,
