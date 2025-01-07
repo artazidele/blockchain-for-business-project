@@ -35,6 +35,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
     }
 
     mapping(uint256 => Project) public projects;
+    uint256[] public projectIds;
     mapping(uint256 => Milestone) public milestones;
     uint256 public projectCount;
     uint256 public milestonesCount;
@@ -49,6 +50,8 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(ADMIN_ROLE, msg.sender);
         donationToken = DonationToken(_donationToken);
+        projectCount = 0;
+        milestonesCount = 0;
     }
 
     function createProject(
@@ -62,6 +65,8 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         
         projectCount++;
         Project storage project = projects[projectCount];
+        projectIds.push(projectCount);
+        project.id = projectCount;
         project.name = _name;
         project.charityAddress = _address;
         project.goalAmount = _goalAmount;
@@ -215,63 +220,10 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         );
     }
 
-    function getMyDonationProjectIds(address _donor) external view returns (
-        uint256[] memory id
-    ) {     
-        uint256[] memory allIds = new uint256[](projectCount);
-        uint count = 0;
-        for (uint i = 0; i < projectCount; i++) {
-            if (projects[i].donations[_donor] > 0) {
-                allIds[count] = i;
-                count += 1;
-            }
-        }
-        return (
-            allIds
-        );
-    }
-
-    function getMyDonationProject(uint256 _projectId, address _donor) external view returns (
-        string memory name,
-        address charityAddress,
-        uint256 goalAmount,
-        uint256 raisedAmount,
-        bool isActive,
-        uint256 milestoneCount,
-        uint256 donorAmount
-    ) {
-        Project storage project = projects[_projectId];
-        uint256 amount = project.donations[_donor];
-        return (
-            project.name,
-            project.charityAddress,
-            project.goalAmount,
-            project.raisedAmount,
-            project.isActive,
-            project.milestones.length,
-            amount
-        );
-    }
-
-    function getMyCharityProjectIds(address _address) external view returns (
-        uint256[] memory id
-    ) {     
-        uint256[] memory allIds = new uint256[](projectCount);
-        uint count = 0;
-        for (uint i = 0; i < projectCount; i++) {
-            if (projects[i].charityAddress == _address) {
-                allIds[count] = i;
-                count += 1;
-            }
-        }
-        return (
-            allIds
-        );
-    }
-
     function getMilestone(uint256 _projectId, uint256 _milestoneIndex) external view returns (
         string memory description,
         uint256 targetAmount,
+        uint256 raisedAmount,
         bool isCompleted,
         bool fundsReleased
     ) {
@@ -280,12 +232,27 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         
         uint256 milestoneProjectIndex = project.milestones[_milestoneIndex];
         Milestone storage milestone = milestones[milestoneProjectIndex];
-        // Milestone storage milestone = project.milestones[_milestoneIndex];
+
         return (
             milestone.description,
             milestone.targetAmount,
+            milestone.raisedAmount,
             milestone.isCompleted,
             milestone.fundsReleased
+        );
+    }
+
+    function getMilestoneAmount(address _address, uint256 _projectId, uint256 _milestoneIndex) external view returns (
+        uint256 donatedAmount
+    ) {
+        Project storage project = projects[_projectId];
+        require(_milestoneIndex < project.milestones.length, "Invalid milestone index");
+        
+        uint256 milestoneProjectIndex = project.milestones[_milestoneIndex];
+        Milestone storage milestone = milestones[milestoneProjectIndex];
+
+        return (
+            milestone.donations[_address]
         );
     }
 
