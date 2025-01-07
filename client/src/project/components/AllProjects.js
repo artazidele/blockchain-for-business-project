@@ -67,7 +67,10 @@ export function AllProjects() {
             };
 
             const allProjectsArray = [...projects];
-            allProjectsArray.push(project);
+            if (project.isActive == true) {
+                allProjectsArray.push(project);
+            }
+            // allProjectsArray.push(project);
             setProjects1(allProjectsArray);
         } catch (error) {
             console.error("Error:", error);
@@ -110,7 +113,10 @@ export function AllProjects() {
                     isActive: areActive[i],
                     milestoneCount: milestoneCounts[i]
                 };
-                allProjectsArray.push(project);
+                if (project.isActive == true) {
+                    allProjectsArray.push(project);
+                }
+                // allProjectsArray.push(project);
             }
 
             setProjects(allProjectsArray);
