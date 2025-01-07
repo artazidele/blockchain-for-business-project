@@ -23,28 +23,13 @@ export function Project() {
     const [ethToEurRate, setEthToEurRate] = useState(null);
 
     // We'll store per-milestone donations (in ETH) in localStorage, keyed by project ID
-    const [milestoneDonations, setMilestoneDonations] = useState({});
+    const [milestoneDonations, setMilestoneDonations] = useState([]);
 
     // The project ID from the URL
     const id = window.location.href.split("/")[3];
 
     // Local storage stuff
     useEffect(() => {
-        // Load milestoneDonations from localStorage
-        const savedData = localStorage.getItem("milestoneDonations");
-        if (savedData) {
-            const parsed = JSON.parse(savedData);
-            if (!parsed[id]) {
-                parsed[id] = {};
-                localStorage.setItem("milestoneDonations", JSON.stringify(parsed));
-            }
-            setMilestoneDonations(parsed);
-        } else {
-            const freshData = { [id]: {} };
-            localStorage.setItem("milestoneDonations", JSON.stringify(freshData));
-            setMilestoneDonations(freshData);
-        }
-
         requestAccount();
         fetchExchangeRate();
     }, [id]);
@@ -110,19 +95,21 @@ export function Project() {
         setLoading(true);
         try {
             const thisContract = initializeContract();
-            // getProject returns [name, charityAddress, goalAmount, raisedAmount, isActive, milestoneCount]
             const projectData = await thisContract.getProject(id);
 
             const milestoneCount = projectData.milestoneCount.toNumber();
             const milestonesData = [];
+            const newMilestoneDonations = [];
             for (let i = 0; i < milestoneCount; i++) {
-                // getMilestone returns [description, targetAmount, isCompleted, fundsReleased]
-                const milestone = await thisContract.getMilestone(id, i);
+                let milestone = await thisContract.getMilestone(id, i);
                 milestonesData.push(milestone);
+                const donatedAmount = await thisContract.getMilestoneAmount(account, id, i);
+                newMilestoneDonations.push(donatedAmount);
             }
 
             setProject(projectData);
             setMilestones(milestonesData);
+            setMilestoneDonations(newMilestoneDonations);
 
             // Fetch total donations (in wei) for the current user
             const donations = await thisContract.getProjectDonations(id, account);
@@ -166,15 +153,11 @@ export function Project() {
             // Parse user’s ETH donation as a float
             const donationEth = parseFloat(ethDonation);
 
-            // Check how much user has already donated to this milestone
-            const projectDonations = milestoneDonations[id] || {};
-            const milestoneUserDonations = projectDonations[milestoneIndex] || {};
-            const alreadyDonatedEth = parseFloat(milestoneUserDonations[account] || "0");
-
             // Figure out the milestone's target in ETH
             const milestone = milestones[milestoneIndex];
             const targetEth = parseFloat(ethers.utils.formatEther(milestone.targetAmount));
-            const leftoverEth = targetEth - alreadyDonatedEth;
+            const raisedEth = parseFloat(ethers.utils.formatEther(milestone.raisedAmount));
+            const leftoverEth = targetEth - raisedEth;
 
             // Prevent going beyond the milestone target
             if (donationEth > leftoverEth) {
@@ -195,27 +178,6 @@ export function Project() {
                 // Update local milestoneDonations
                 thisContract.on("DonationReceived", () => {
                     console.log("DonationReceived");
-
-                    const newMilestoneDonations = { ...milestoneDonations };
-                    if (!newMilestoneDonations[id]) {
-                        newMilestoneDonations[id] = {};
-                    }
-                    if (!newMilestoneDonations[id][milestoneIndex]) {
-                        newMilestoneDonations[id][milestoneIndex] = {};
-                    }
-
-                    const previous = parseFloat(
-                        newMilestoneDonations[id][milestoneIndex][account] || "0"
-                    );
-                    newMilestoneDonations[id][milestoneIndex][account] = (
-                        previous + donationEth
-                    ).toString();
-
-                    setMilestoneDonations(newMilestoneDonations);
-                    localStorage.setItem(
-                        "milestoneDonations",
-                        JSON.stringify(newMilestoneDonations)
-                    );
 
                     // Clear the input field for this milestone
                     const input = document.getElementById(`milestone-input-${milestoneIndex}`);
@@ -302,15 +264,14 @@ export function Project() {
                                 const targetEth = parseFloat(
                                     ethers.utils.formatEther(milestone.targetAmount)
                                 );
-                                // how much user has donated so far
-                                const projectDonations = milestoneDonations[id] || {};
-                                const milestoneUserDonations = projectDonations[index] || {};
-                                const userDonatedEth = parseFloat(
-                                    milestoneUserDonations[account] || "0"
+                                const raisedEth = parseFloat(
+                                    ethers.utils.formatEther(milestone.raisedAmount)
                                 );
+                                const leftoverEth = targetEth - raisedEth;
 
-                                // leftover to reach this milestone
-                                const leftoverEth = targetEth - userDonatedEth;
+                                const userDonatedEth = parseFloat(
+                                    ethers.utils.formatEther(milestoneDonations[index])
+                                );
 
                                 return (
                                     <div
