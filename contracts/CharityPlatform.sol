@@ -20,19 +20,31 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         uint256 raisedAmount;
         bool isActive;
         uint256[] milestones;
+        bool isFunded;
         mapping(address => uint256) donations;
     }
 
-    struct Milestone {
-        uint256 id;
-        uint256 projectId;
-        string description;
-        uint256 targetAmount;
-        uint256 raisedAmount;
-        bool isCompleted;
-        bool fundsReleased;
-        mapping(address => uint256) donations;
-    }
+struct Milestone {
+    uint256 id;
+    uint256 projectId;
+    string description;
+    uint256 targetAmount;
+    uint256 raisedAmount;
+    bool isCompleted;
+    bool fundsReleased;
+    mapping(address => uint256) donations;
+    string usageInfo;
+}
+
+function setUsageInfo(uint256 _milestoneId, string memory _info) external onlyRole(CHARITY_ROLE) {
+    Milestone storage milestone = milestones[_milestoneId];
+    milestone.usageInfo = _info;
+}
+
+function getUsageInfo(uint256 _milestoneId) external view returns (string memory) {
+    Milestone storage milestone = milestones[_milestoneId];
+    return milestone.usageInfo;
+}
 
     mapping(uint256 => Project) public projects;
     uint256[] public projectIds;
@@ -71,6 +83,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         project.charityAddress = _address;
         project.goalAmount = _goalAmount;
         project.isActive = true;
+        project.isFunded = false;
 
         for(uint i = 0; i < _milestoneDescriptions.length; i++) {
             createMilestone(_milestoneDescriptions[i], _milestoneTargets[i], projectCount);
@@ -97,7 +110,12 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         project.milestones.push(milestonesCount);
     }
 
-    function donate(uint256 _projectId, uint256 _milestoneId, address _donor, address _recipient) external payable nonReentrant {
+    function donate(
+        uint256 _projectId, 
+        uint256 _milestoneId, 
+        address _donor, 
+        address _recipient
+    ) external payable nonReentrant {
         Project storage project = projects[_projectId];
         require(project.isActive, "Project is not active");
         require(msg.value > 0, "Donation amount must be greater than 0");
@@ -117,6 +135,10 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
 
         if (milestone.raisedAmount == milestone.targetAmount && !milestone.isCompleted) {
             completeMilestone(milestone.id);
+        }
+
+        if (!project.isFunded && project.raisedAmount >= project.goalAmount) {
+            project.isFunded = true;
         }
     }
 
@@ -165,6 +187,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         uint256 goalAmount,
         uint256 raisedAmount,
         bool isActive,
+        bool isFunded,
         uint256 milestoneCount
     ) {
         Project storage project = projects[_projectId];
@@ -174,6 +197,7 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
             project.goalAmount,
             project.raisedAmount,
             project.isActive,
+            project.isFunded,
             project.milestones.length
         );
     }
