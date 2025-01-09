@@ -10,7 +10,6 @@ export function MyDonations() {
     const [projects2, setProjects2] = useState([]);
     const [projects, setProjects] = useState([]);
     const [projectCount, setProjectCount] = useState(0);
-    const [loading, setLoading] = useState(false);
 
     // New: store real-time ETH→EUR exchange rate
     const [ethToEurRate, setEthToEurRate] = useState(null);
@@ -123,7 +122,6 @@ export function MyDonations() {
             const allProjectsArray = [...projects];
             allProjectsArray.push(project);
             setProjects1(allProjectsArray);
-            setLoading(false);
         } catch (error) {
             console.error("Error:", error);
         }
@@ -133,7 +131,6 @@ export function MyDonations() {
      * Fetch all projects in bulk
      */
      async function getProjects() {
-        setLoading(true);
         const contractAddress = localStorage.getItem('contract');
         const signerAddress = localStorage.getItem('signer');
 
@@ -181,9 +178,6 @@ export function MyDonations() {
         <div className='bg-white p-6'>
             <p className='my-4 italic'>In this page you can see projects you have donated to.</p>
         </div>
-        { loading && <div className='bg-white p-6'>
-            <p className='my-4 italic'>Loading...</p>
-        </div> }
         <div className='grid grid-cols-3 gap-4 w-full'>
             {projects2 && projects2.map((project) => (
                 <div key={project.id}>

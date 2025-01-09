@@ -7,7 +7,6 @@ import { MyDonations } from './project/components/MyDonations';
 import { About } from './project/components/About';
 import { MyCharity } from './project/components/MyCharity';
 import { Project } from './project/components/Project';
-import { Admin } from './project/components/Admin';
 import { AdminLogin } from './project/components/AdminLogin';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
