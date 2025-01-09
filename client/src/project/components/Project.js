@@ -25,6 +25,7 @@ export function Project() {
     // We'll store per-milestone donations (in ETH) in localStorage, keyed by project ID
     const [milestoneDonations, setMilestoneDonations] = useState([]);
 
+    const [usageInfo, setUsageInfo] = useState({});
     // The project ID from the URL
     const id = window.location.href.split("/")[3];
 
@@ -100,9 +101,11 @@ export function Project() {
             const milestoneCount = projectData.milestoneCount.toNumber();
             const milestonesData = [];
             const newMilestoneDonations = [];
+
             for (let i = 0; i < milestoneCount; i++) {
                 let milestone = await thisContract.getMilestone(id, i);
                 milestonesData.push(milestone);
+
                 const donatedAmount = await thisContract.getMilestoneAmount(account, id, i);
                 newMilestoneDonations.push(donatedAmount);
             }
@@ -114,7 +117,6 @@ export function Project() {
             // Fetch total donations (in wei) for the current user
             const donations = await thisContract.getProjectDonations(id, account);
             const donorEth = ethers.utils.formatEther(donations);
-            // We'll store it as a string for display
             setAccountAmount(donorEth);
         } catch (error) {
             console.error("Error fetching project data:", error);
@@ -175,7 +177,6 @@ export function Project() {
                 });
                 await tx.wait();
 
-                // Update local milestoneDonations
                 thisContract.on("DonationReceived", () => {
                     console.log("DonationReceived");
 
@@ -187,12 +188,30 @@ export function Project() {
                 });
                 thisContract.on("MilestoneCompleted", () => {
                     console.log("MilestoneCompleted");
+                    // Potentially fetch data again if you want to reflect the updated status
+                    fetchProjectData();
                 });
             } catch (error) {
                 console.error("Error during donation:", error);
             }
         },
-        [account, milestones, project, milestoneDonations, initializeContract, fetchProjectData, id]
+        [account, milestones, project, initializeContract, fetchProjectData, id]
+    );
+    const fetchUsageInfo = useCallback(
+        async (milestoneIndex) => {
+            try {
+                const thisContract = initializeContract();
+
+                const info = await thisContract.getUsageInfo(milestoneIndex);
+                setUsageInfo((prev) => ({
+                    ...prev,
+                    [milestoneIndex]: info,
+                }));
+            } catch (error) {
+                console.error("Error fetching usage info:", error);
+            }
+        },
+        [initializeContract]
     );
 
     if (loading) {
@@ -212,7 +231,13 @@ export function Project() {
                                 project.isActive ? "text-lime-900" : "text-red-900"
                             }`}
                         >
-                            <p>{project.isActive ? "Active" : "Not active"}</p>
+                            {project.isFunded ? (
+                                <p>Funded</p>
+                                ) : project.isActive ? (
+                                <p>Active</p>
+                                ) : (
+                                <p>Not active</p>
+                                )}
                         </div>
 
                         {/* Goal in ETH */}
@@ -224,7 +249,7 @@ export function Project() {
                             {ethToEurRate && project.goalAmount ? (
                                 <span className="italic text-sm text-gray-700">
                                     {" "}
-                                    (~{" "}
+                                    (~
                                     {(
                                         parseFloat(ethers.utils.formatEther(project.goalAmount)) *
                                         ethToEurRate
@@ -238,18 +263,15 @@ export function Project() {
                         <h2 className="font-semibold text-xl my-6">
                             Raised amount (ETH):{" "}
                             {project.raisedAmount
-                                ? parseFloat(ethers.utils.formatEther(project.raisedAmount)).toFixed(
-                                      4
-                                  )
+                                ? parseFloat(ethers.utils.formatEther(project.raisedAmount)).toFixed(4)
                                 : "N/A"}{" "}
                             {ethToEurRate && project.raisedAmount ? (
                                 <span className="italic text-sm text-gray-700">
                                     {" "}
-                                    (~{" "}
+                                    (~
                                     {(
-                                        parseFloat(
-                                            ethers.utils.formatEther(project.raisedAmount)
-                                        ) * ethToEurRate
+                                        parseFloat(ethers.utils.formatEther(project.raisedAmount)) *
+                                        ethToEurRate
                                     ).toFixed(2)}{" "}
                                     EUR)
                                 </span>
@@ -269,9 +291,13 @@ export function Project() {
                                 );
                                 const leftoverEth = targetEth - raisedEth;
 
+                                // How much the current user donated to this milestone
                                 const userDonatedEth = parseFloat(
                                     ethers.utils.formatEther(milestoneDonations[index])
                                 );
+
+                                // Milestone completion status
+                                const isCompleted = milestone.isCompleted;
 
                                 return (
                                     <div
@@ -290,16 +316,13 @@ export function Project() {
                                         </h2>
                                         <h2 className="font-medium text-lg my-4">Description:</h2>
                                         <p>{milestone.description || "No description provided."}</p>
+
                                         <p
                                             className={`w-full italic text-sm text-right my-4 ${
-                                                milestone.isCompleted
-                                                    ? "text-lime-900"
-                                                    : "text-red-900"
+                                                isCompleted ? "text-lime-900" : "text-red-900"
                                             }`}
                                         >
-                                            {milestone.isCompleted
-                                                ? "Completed"
-                                                : "Not completed."}
+                                            {isCompleted ? "Completed" : "Not completed."}
                                         </p>
 
                                         {/* Show how much the user has donated to this milestone */}
@@ -372,6 +395,33 @@ export function Project() {
                                                     </button>
                                                 </form>
                                             )}
+
+                                        {/* Once a milestone is completed, show a button to view usage info */}
+                                        {isCompleted && (
+                                            <div className="mt-8">
+                                                <button
+                                                    onClick={() => fetchUsageInfo(index)}
+                                                    className="bg-white text-center hover:text-white hover:bg-lime-900 hover:border-lime-900 font-semibold text-lime-900 py-2 px-4 border-2 border-lime-900 rounded-lg"
+                                                >
+                                                    View Usage Info
+                                                </button>
+
+                                                {/* If we have usage info for this milestone, display it.
+                                                    Otherwise show: "Funds haven't been used." */}
+                                                {usageInfo[index] !== undefined ? (
+                                                    usageInfo[index] && usageInfo[index].length > 0 ? (
+                                                        <div className="mt-4 border border-gray-300 p-2 rounded">
+                                                            <p className="font-semibold">Funds Usage:</p>
+                                                            <p>{usageInfo[index]}</p>
+                                                        </div>
+                                                    ) : (
+                                                        <p className="mt-4 italic text-sm text-gray-600">
+                                                            Funds haven't been used yet.
+                                                        </p>
+                                                    )
+                                                ) : null}
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })
