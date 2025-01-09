@@ -143,9 +143,10 @@ contract CharityPlatform is ReentrancyGuard, AccessControl {
         emit RefundIssued(_projectId, msg.sender, donationAmount);
     }
 
-    function deactivateProject(uint256 _projectId) external onlyRole(ADMIN_ROLE) {
+    function deactivateProject(uint256 _projectId, address _sender) external onlyRole(CHARITY_ROLE) {
         Project storage project = projects[_projectId];
         require(project.isActive, "Project already inactive");
+        require(project.charityAddress == _sender, "Project already inactive");
         project.isActive = false;
     }
 

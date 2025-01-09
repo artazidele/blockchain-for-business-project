@@ -129,7 +129,7 @@ export function Project() {
     const deactivateProject = useCallback(async () => {
         try {
             const thisContract = initializeContract();
-            const tx = await thisContract.deactivateProject(id);
+            const tx = await thisContract.deactivateProject(id, account);
             await tx.wait();
             fetchProjectData();
         } catch (error) {
