@@ -8,6 +8,7 @@ export function AllProjects() {
     const [projects, setProjects] = useState([]);
     const [projects1, setProjects1] = useState([]);
     const [projectCount, setProjectCount] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     // New: store real-time ETH→EUR exchange rate
     const [ethToEurRate, setEthToEurRate] = useState(null);
@@ -70,8 +71,8 @@ export function AllProjects() {
             if (project.isActive == true) {
                 allProjectsArray.push(project);
             }
-            // allProjectsArray.push(project);
             setProjects1(allProjectsArray);
+            setLoading(false);
         } catch (error) {
             console.error("Error:", error);
         }
@@ -81,6 +82,7 @@ export function AllProjects() {
      * Fetch all projects in bulk
      */
     async function getProjects() {
+        setLoading(true);
         const contractAddress = localStorage.getItem('contract');
         const signerAddress = localStorage.getItem('signer');
 
@@ -116,7 +118,6 @@ export function AllProjects() {
                 if (project.isActive == true) {
                     allProjectsArray.push(project);
                 }
-                // allProjectsArray.push(project);
             }
 
             setProjects(allProjectsArray);
@@ -128,6 +129,9 @@ export function AllProjects() {
     return (
         <div>
             <h1 className='ml-6 my-8 text-4xl italic text-coffee_5 font-semibold'>All projects</h1>
+            { loading && <div className='bg-white p-6'>
+                <p className='my-4 italic'>Loading...</p>
+            </div> }
             <div className='grid grid-cols-3 gap-4 w-full'>
                 {projects1 && projects1.map((project) => (
                     <div key={project.id}>
