@@ -247,7 +247,7 @@
         1820
       ],
       "ERC165": [
-        2285
+        3165
       ],
       "IAccessControl": [
         378
@@ -325,7 +325,7 @@
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
         "scope": 296,
-        "sourceUnit": 2286,
+        "sourceUnit": 3166,
         "src": "233:57:0",
         "symbolAliases": [
           {
@@ -334,7 +334,7 @@
               "name": "ERC165",
               "nodeType": "Identifier",
               "overloadedDeclarations": [],
-              "referencedDeclaration": 2285,
+              "referencedDeclaration": 3165,
               "src": "241:6:0",
               "typeDescriptions": {}
             },
@@ -384,7 +384,7 @@
                 "2013:6:0"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 2285,
+              "referencedDeclaration": 3165,
               "src": "2013:6:0"
             },
             "id": 14,
@@ -405,8 +405,8 @@
         "id": 295,
         "linearizedBaseContracts": [
           295,
-          2285,
-          2297,
+          3165,
+          3177,
           378,
           1820
         ],
@@ -727,7 +727,7 @@
           },
           {
             "baseFunctions": [
-              2284
+              3164
             ],
             "body": {
               "id": 61,
@@ -883,7 +883,7 @@
                         "memberLocation": "2730:17:0",
                         "memberName": "supportsInterface",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 2284,
+                        "referencedDeclaration": 3164,
                         "src": "2724:23:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_internal_view$_t_bytes4_$returns$_t_bool_$",
@@ -3875,7 +3875,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-11-27T11:21:40.307Z",
+  "updatedAt": "2025-01-10T13:06:08.523Z",
   "devdoc": {
     "details": "Contract module that allows children to implement role-based access control mechanisms. This is a lightweight version that doesn't allow enumerating role members except through off-chain means by accessing the contract event logs. Some applications may benefit from on-chain enumerability, for those cases see {AccessControlEnumerable}. Roles are referred to by their `bytes32` identifier. These should be exposed in the external API and be unique. The best way to achieve this is by using `public constant` hash digests: ```solidity bytes32 public constant MY_ROLE = keccak256(\"MY_ROLE\"); ``` Roles can be used to represent a set of permissions. To restrict access to a function call, use {hasRole}: ```solidity function foo() public {     require(hasRole(MY_ROLE, msg.sender));     ... } ``` Roles can be granted and revoked dynamically via the {grantRole} and {revokeRole} functions. Each role has an associated admin role, and only accounts that have a role's admin role can call {grantRole} and {revokeRole}. By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means that only accounts with this role will be able to grant or revoke other roles. More complex role relationships can be created by using {_setRoleAdmin}. WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to grant and revoke this role. Extra precautions should be taken to secure accounts that have been granted it. We recommend using {AccessControlDefaultAdminRules} to enforce additional security measures for this role.",
     "errors": {

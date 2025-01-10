@@ -425,7 +425,7 @@
         "linearizedBaseContracts": [
           1713,
           1667,
-          2297
+          3177
         ],
         "name": "IERC721Metadata",
         "nameLocation": "338:15:7",
@@ -661,7 +661,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-11-27T11:21:40.327Z",
+  "updatedAt": "2025-01-10T13:06:08.532Z",
   "devdoc": {
     "details": "See https://eips.ethereum.org/EIPS/eip-721",
     "events": {
