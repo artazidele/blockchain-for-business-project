@@ -1,0 +1,12 @@
+truffle-config.js
+package.json
+package-lock.json
+.gitattributes
+test
+client/src/contracts
+client/package-lock.json
+client/package.json
+client/postcss.config.js
+client/README.md
+client/tailwind.config.js
+node_modules
